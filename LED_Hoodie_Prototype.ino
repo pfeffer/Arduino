@@ -1,72 +1,75 @@
-int LED = 14;
-int s = 11;
-int m_LED = 13;
-int buttonState;
-int lastButtonState = HIGH;
-int mode = 0;
+int boardLED = 13;
+int leftSignal1 = 3;                
+int leftSignal2 = 5;
 
-int pin5 = 5;
-int pin3 = 3;
+int leftSwitch = 14;
+int leftLED = 11;
+int x, y;
 
-int timesPressed = 0;
 
-int buttonPressed = 0;
-
-void setup(){
-  pinMode(LED, OUTPUT);
-  pinMode(m_LED, OUTPUT);
+void setup()                    // run once, when the sketch starts
+{
+  pinMode(boardLED, OUTPUT);
   
-  pinMode(pin3, OUTPUT);
-  pinMode(pin5, OUTPUT);
+  pinMode(leftSignal1, OUTPUT);
+  pinMode(leftSignal2, OUTPUT); 
   
-  pinMode(s, INPUT);
-  digitalWrite(s, HIGH);
+  pinMode(leftSwitch, INPUT);  
+  digitalWrite(leftSwitch, HIGH);
+  pinMode(leftLED, OUTPUT);   
   
-  //lastButtonState = digitalRead(s);
+  digitalWrite(boardLED, HIGH);
 }
 
-void loop(){
-  buttonState = digitalRead(s);
+void loop()                     // run over and over again
+{ 
+  checkLeft();
+}
 
-  if (buttonState == HIGH){
-    if (buttonState != lastButtonState){
-      timesPressed ++;
-    }
-    if (timesPressed>0){
-      timesPressed = 0;
-      buttonPressed = 1 - buttonPressed;
-    }
-  }else if (buttonState == LOW && buttonPressed == 0 ){
-    
+void checkLeft()
+{
+  if (digitalRead(leftSwitch) == LOW)
+  {
+    digitalWrite(boardLED, LOW);
+    while (digitalRead(leftSwitch) == LOW);
+    leftTurn();
   }
-  
-  lastButtonState = buttonState;
-  
-  if (buttonPressed == 1){
-    digitalWrite(LED, HIGH);
-    digitalWrite(m_LED,HIGH);
-    
-      if (digitalRead(s) == HIGH){
-        if (buttonState != lastButtonState){
-          buttonState = LOW;
-          buttonPressed = 0;
-          return;
-        }
+}
+
+void leftTurn()
+{
+  while (true)
+  {
+    digitalWrite(leftSignal1, HIGH);
+    digitalWrite(leftSignal2, LOW);    
+    digitalWrite(leftLED, HIGH); 
+    for(y=0;y<10;y++)
+    {
+      delay(30);
+      if (digitalRead(leftSwitch) == LOW)
+      {
+        while (digitalRead(leftSwitch) == LOW);
+        digitalWrite(leftSignal1, LOW);
+        digitalWrite(leftSignal2, LOW);
+        digitalWrite(leftLED, LOW); 
+        return;
       }
-      digitalWrite(pin3, HIGH);
-      digitalWrite(pin5, LOW);
-      
-      delay(100);
-      
-      digitalWrite(pin3, LOW);
-      digitalWrite(pin5, HIGH);
-      delay(100);
-  }else{
-    digitalWrite(LED, LOW);
-    digitalWrite(m_LED,LOW);
-    
-    digitalWrite(pin3, LOW);
-    digitalWrite(pin5, LOW);
+    }
+    digitalWrite(leftSignal1, LOW);
+    digitalWrite(leftSignal2, HIGH);
+    digitalWrite(leftLED, LOW);
+    for(y=0;y<10;y++)
+    {
+      delay(30);
+      if (digitalRead(leftSwitch) == LOW)
+      {
+        while (digitalRead(leftSwitch) == LOW);
+        digitalWrite(leftSignal1, LOW);
+        digitalWrite(leftSignal2, LOW);
+        digitalWrite(leftLED, LOW);
+        return;
+      }
+    }
+    digitalWrite(leftLED, LOW); 
   }
- }
- 
+}
